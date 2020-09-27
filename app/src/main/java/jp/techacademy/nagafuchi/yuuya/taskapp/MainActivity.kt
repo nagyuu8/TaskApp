@@ -34,7 +34,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        category_select_button.setOnClickListener { view ->
+            selectCategory(category_select_edit_text.text.toString())
+        }
 
 
         fab.setOnClickListener { view ->
@@ -119,48 +121,23 @@ class MainActivity : AppCompatActivity() {
 
         mRealm.close()
     }
+    private fun selectCategory(category:String){
+        if(category == ""){
+            reloadListView()
+        }else {
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if(menu != null){
-        val inflater = menuInflater
-        inflater.inflate(R.menu.menu_main, menu)
+            // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
+            val taskRealmResults =
+                mRealm.where(Task::class.java).equalTo("category", category).findAll().sort("date", Sort.DESCENDING)
 
-        val menuItem = menu.findItem(R.menu.menu_main) as SearchView
-//        var category = menuItem.toString()
+            // 上記の結果を、TaskList としてセットする
+            mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
 
-            menuItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextChange(newText: String): Boolean {
-                    // text changed
-                    var category = newText
-                    // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-                    val taskRealmResults = mRealm.where(Task::class.java).equalTo("category",category).findAll().sort("date", Sort.DESCENDING)
+            // TaskのListView用のアダプタに渡す
+            listView1.adapter = mTaskAdapter
 
-                    // 上記の結果を、TaskList としてセットする
-                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
-
-                    // TaskのListView用のアダプタに渡す
-                    listView1.adapter = mTaskAdapter
-
-                    // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-                    mTaskAdapter.notifyDataSetChanged()
-                    return false
-                }
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    // submit button pressed
-                    return false
-                }
-            })
-
+            // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+            mTaskAdapter.notifyDataSetChanged()
         }
-
-
-
-
-        return super.onCreateOptionsMenu(menu)
     }
-
-
-
-
-
 }
