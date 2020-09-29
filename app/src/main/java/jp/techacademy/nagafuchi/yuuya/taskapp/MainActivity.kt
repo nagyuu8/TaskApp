@@ -12,6 +12,7 @@ import android.support.v7.widget.SearchView
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import io.realm.RealmChangeListener
@@ -114,6 +115,30 @@ class MainActivity : AppCompatActivity() {
 
         // 表示を更新するために、アダプターにデータが変更されたことを知らせる
         mTaskAdapter.notifyDataSetChanged()
+    }
+
+    private fun reloadSpinner(){
+        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
+        val taskRealmResults = mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
+
+        // 上記の結果を、TaskList としてセットする
+        mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+
+        //adapterに渡す配列を作成する。
+        val date = Array<String>(mTaskAdapter.taskList.size,
+
+        )
+        //adapterを作成すうる
+        val adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,mTaskAdapter.taskList)
+        // TaskのListView用のアダプタに渡す
+        listView1.adapter = {
+            mTaskAdapter.taskList.
+        }
+
+        // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+        mTaskAdapter.notifyDataSetChanged()
+
+
     }
 
     override fun onDestroy() {

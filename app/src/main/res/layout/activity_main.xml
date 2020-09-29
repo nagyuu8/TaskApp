@@ -10,8 +10,8 @@
         tools:context=".MainActivity"
        >
 
-<android.support.design.widget.AppBarLayout android:layout_width="match_parent"
-                                            android:layout_height="wrap_content">
+<RelativeLayout android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
 
     <EditText android:layout_width="match_parent"
@@ -22,18 +22,32 @@
             android:layout_gravity="right"
             android:layout_height="wrap_content"
             android:id="@+id/category_select_button"
+            android:layout_below="@+id/category_select_edit_text"
             android:text="検索"/>
+    <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/category_select_spinner"
+            android:layout_below="@id/category_select_button"
+        android:spinnerMode="dialog"/>
 
-</android.support.design.widget.AppBarLayout>
 
 
     <ListView
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_below="@+id/category_select_spinner"
             android:layout_gravity="bottom"
             android:id="@+id/listView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
     </ListView>
+
+
+
+
+</RelativeLayout>
+
+
+
 
     <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
