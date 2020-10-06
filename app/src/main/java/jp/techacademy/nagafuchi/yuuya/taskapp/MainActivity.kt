@@ -24,20 +24,16 @@ const val EXTRA_TASK = "jp.techacademy.nagafuchi.yuuya.taskapp.TASK"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mRealm: Realm
-    private lateinit var mCategoryRealm: Realm
     private val mRealmListener = object : RealmChangeListener<Realm> {
         override fun onChange(element: Realm) {
             reloadListView()
         }
     }
-    private val mCategoryRealmListener = object :RealmChangeListener<Realm>{
-        override fun onChange(t: Realm) {
-            categoryReloadListView()
-        }
-    }
+
 
     private lateinit var mTaskAdapter: TaskAdapter
     private lateinit var mCategoryAdapter:CategoryAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,13 +50,12 @@ class MainActivity : AppCompatActivity() {
         mRealm = Realm.getDefaultInstance()
         mRealm.addChangeListener(mRealmListener)
 
-        //mCategoryRealmの設定
-        mCategoryRealm = Realm.getDefaultInstance()
-        mCategoryRealm.addChangeListener(mCategoryRealmListener)
+
 
         // ListViewの設定
         mTaskAdapter = TaskAdapter(this@MainActivity)
         mCategoryAdapter = CategoryAdapter(this@MainActivity)
+
 
         // ListViewをタップしたときの処理
         listView1.setOnItemClickListener { parent, view, position, id ->
@@ -128,9 +123,9 @@ class MainActivity : AppCompatActivity() {
     }
     private fun categoryReloadListView() {
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        val categoryRealmResults = mCategoryRealm.where(Category::class.java).findAll()
+        val categoryRealmResults = mRealm.where(Category::class.java).findAll()
         // 上記の結果を、TaskList としてセットする
-        mCategoryAdapter.categoryList = mCategoryRealm.copyFromRealm(categoryRealmResults)
+        mCategoryAdapter.categoryList = mRealm.copyFromRealm(categoryRealmResults)
 
         // TaskのListView用のアダプタに渡す
         category_select_spinner.adapter = mCategoryAdapter
@@ -143,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         mRealm.close()
-        mCategoryRealm.close()
+
     }
 
 }
