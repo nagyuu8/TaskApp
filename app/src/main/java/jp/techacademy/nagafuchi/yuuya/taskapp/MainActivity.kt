@@ -24,20 +24,25 @@ const val EXTRA_TASK = "jp.techacademy.nagafuchi.yuuya.taskapp.TASK"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mRealm: Realm
+    private lateinit var mCategoryRealm: Realm
     private val mRealmListener = object : RealmChangeListener<Realm> {
         override fun onChange(element: Realm) {
             reloadListView()
         }
     }
+    private val mCategoryRealmListener = object :RealmChangeListener<Realm>{
+        override fun onChange(t: Realm) {
+            categoryReloadListView()
+        }
+    }
 
     private lateinit var mTaskAdapter: TaskAdapter
+    private lateinit var mCategoryAdapter:CategoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        category_select_button.setOnClickListener { view ->
-            selectCategory(category_select_edit_text.text.toString())
-        }
+
 
 
         fab.setOnClickListener { view ->
@@ -49,8 +54,13 @@ class MainActivity : AppCompatActivity() {
         mRealm = Realm.getDefaultInstance()
         mRealm.addChangeListener(mRealmListener)
 
+        //mCategoryRealmの設定
+        mCategoryRealm = Realm.getDefaultInstance()
+        mCategoryRealm.addChangeListener(mCategoryRealmListener)
+
         // ListViewの設定
         mTaskAdapter = TaskAdapter(this@MainActivity)
+        mCategoryAdapter = CategoryAdapter(this@MainActivity)
 
         // ListViewをタップしたときの処理
         listView1.setOnItemClickListener { parent, view, position, id ->
@@ -116,53 +126,24 @@ class MainActivity : AppCompatActivity() {
         // 表示を更新するために、アダプターにデータが変更されたことを知らせる
         mTaskAdapter.notifyDataSetChanged()
     }
-
-    private fun reloadSpinner(){
+    private fun categoryReloadListView() {
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        val taskRealmResults = mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
-
+        val categoryRealmResults = mCategoryRealm.where(Category::class.java).findAll()
         // 上記の結果を、TaskList としてセットする
-        mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+        mCategoryAdapter.categoryList = mCategoryRealm.copyFromRealm(categoryRealmResults)
 
-        //adapterに渡す配列を作成する。
-        val date = Array<String>(mTaskAdapter.taskList.size,
-
-        )
-        //adapterを作成すうる
-        val adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,mTaskAdapter.taskList)
         // TaskのListView用のアダプタに渡す
-        listView1.adapter = {
-            mTaskAdapter.taskList.
-        }
+        category_select_spinner.adapter = mCategoryAdapter
 
         // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-        mTaskAdapter.notifyDataSetChanged()
-
-
+        mCategoryAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         mRealm.close()
+        mCategoryRealm.close()
     }
-    private fun selectCategory(category:String){
-        if(category == ""){
-            reloadListView()
-        }else {
 
-            // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-            val taskRealmResults =
-                mRealm.where(Task::class.java).equalTo("category", category).findAll().sort("date", Sort.DESCENDING)
-
-            // 上記の結果を、TaskList としてセットする
-            mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
-
-            // TaskのListView用のアダプタに渡す
-            listView1.adapter = mTaskAdapter
-
-            // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-            mTaskAdapter.notifyDataSetChanged()
-        }
-    }
 }

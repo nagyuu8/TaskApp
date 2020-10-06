@@ -23,6 +23,13 @@ class InputActivity : AppCompatActivity() {
     private var mMinute = 0
     private var mTask:Task?=null
 
+    private val mOnNewCategoryClickListener = View.OnClickListener {
+            view ->
+        val intent = Intent(this@InputActivity, InputCategoryActivity::class.java)
+        startActivity(intent)
+        //TODO 新規カテゴリーボタンが押された時 Categoryを新たに作成するインテントに飛ばす。
+    }
+
     private val mOnDateClickListener = View.OnClickListener {
         val datePickerDialog = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
             mYaer = year
@@ -63,6 +70,7 @@ class InputActivity : AppCompatActivity() {
         date_button.setOnClickListener(mOnDateClickListener)
         times_button.setOnClickListener(mOnTimerClickListener)
         done_button.setOnClickListener(mOnDoneClickListener)
+        new_category_button.setOnClickListener(mOnNewCategoryClickListener)
 
         //EXTRA_TASK から Task のidを取得して、idからTaskのインスタンスを取得する。
         val intent = intent
@@ -83,7 +91,7 @@ class InputActivity : AppCompatActivity() {
             //更新の場合
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
-            category_edit_text.setText(mTask!!.category)
+            category_select_spinner.setPromptId(mTask!!.categoryId)
 
             val calender = Calendar.getInstance()
             mYaer = calender.get(Calendar.YEAR)
@@ -118,11 +126,12 @@ class InputActivity : AppCompatActivity() {
         }
         val title = title_edit_text.text.toString()
         val content = content_edit_text.text.toString()
-        val category = category_edit_text.text.toString()
+        val categoryId = category_select_spinner.selectedItemPosition
 
         mTask!!.title = title
         mTask!!.contents = content
-        mTask!!.category = category
+        mTask!!.categoryId = categoryId
+
 
         val calendar = GregorianCalendar(mYaer,mMonth,mDay,mHour,mMinute)
         val date = calendar.time
